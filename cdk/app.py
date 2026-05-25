@@ -1,28 +1,32 @@
-#!/usr/bin/env python3
-import os
-
 import aws_cdk as cdk
+import os
+from stacks.storage_stack import StorageStack
 
-from cdk.cdk_stack import CdkStack
-
-
+# ── App Entry Point ─────────────────────────────────────────────────────────
+# This is the root of your CDK application.
+# Think of it like the "main()" of your infrastructure.
+# Every stack you create gets registered here and deployed together.
 app = cdk.App()
-CdkStack(app, "CdkStack",
-    # If you don't specify 'env', this stack will be environment-agnostic.
-    # Account/Region-dependent features and context lookups will not work,
-    # but a single synthesized template can be deployed anywhere.
 
-    # Uncomment the next line to specialize this stack for the AWS Account
-    # and Region that are implied by the current CLI configuration.
+# ── Environment Configuration ────────────────────────────────────────────────
+# We read the AWS account and region from environment variables instead of
+# hardcoding them. This means the same code can deploy to different
+# environments (dev, staging, prod) just by changing env vars.
+#
+# CDK_DEFAULT_ACCOUNT and CDK_DEFAULT_REGION are automatically set by the
+# AWS CLI when you run: export AWS_PROFILE=securepulse
+# So you don't need to set them manually — they come from your AWS profile.
+env = cdk.Environment(
+    account=os.environ.get("CDK_DEFAULT_ACCOUNT"),
+    region=os.environ.get("CDK_DEFAULT_REGION", "eu-west-1"),
+)
 
-    #env=cdk.Environment(account=os.getenv('CDK_DEFAULT_ACCOUNT'), region=os.getenv('CDK_DEFAULT_REGION')),
+# ── Storage Stack ────────────────────────────────────────────────────────────
+# This creates the DynamoDB table and S3 bucket.
+# We pass `env` so CDK knows which AWS account and region to deploy to.
+StorageStack(app, "SecurePulseStorageStack", env=env)
 
-    # Uncomment the next line if you know exactly what Account and Region you
-    # want to deploy the stack to. */
-
-    #env=cdk.Environment(account='123456789012', region='us-east-1'),
-
-    # For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html
-    )
-
+# ── Synthesize ───────────────────────────────────────────────────────────────
+# This tells CDK to generate the CloudFormation templates.
+# Always the last line in app.py.
 app.synth()
