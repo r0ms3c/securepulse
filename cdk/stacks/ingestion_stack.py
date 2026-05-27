@@ -125,12 +125,12 @@ class IngestionStack(Stack):
             # ── Code Location ────────────────────────────────────────────────
             # Points to the folder containing the Lambda code.
             # CDK will zip this folder and upload it to S3 for deployment.
-            code=lambda_.Code.from_asset("../lambdas/fetchers"),
+            code=lambda_.Code.from_asset("../lambdas"),
 
             # ── Handler ──────────────────────────────────────────────────────
             # Format: "filename.function_name"
             # Lambda will call nvd_fetcher.handler() when invoked.
-            handler="nvd_fetcher.handler",
+            handler="fetchers.nvd_fetcher.handler",
 
             # ── Timeout ──────────────────────────────────────────────────────
             # Max time this Lambda can run before AWS kills it.
@@ -153,7 +153,7 @@ class IngestionStack(Stack):
             "CisaKevFetcher",
             function_name="securepulse-cisa-kev-fetcher",
             runtime=lambda_.Runtime.PYTHON_3_12,
-            code=lambda_.Code.from_asset("../lambdas/fetchers"),
+            code=lambda_.Code.from_asset("../lambdas"),
             handler="cisa_kev_fetcher.handler",
             timeout=Duration.minutes(3),
             memory_size=128,
@@ -169,7 +169,7 @@ class IngestionStack(Stack):
             "EpssFetcher",
             function_name="securepulse-epss-fetcher",
             runtime=lambda_.Runtime.PYTHON_3_12,
-            code=lambda_.Code.from_asset("../lambdas/fetchers"),
+            code=lambda_.Code.from_asset("../lambdas"),
             handler="epss_fetcher.handler",
             timeout=Duration.minutes(3),
             memory_size=128,
