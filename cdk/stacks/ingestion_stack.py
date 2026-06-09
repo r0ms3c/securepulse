@@ -170,9 +170,9 @@ class IngestionStack(Stack):
             function_name="securepulse-epss-fetcher",
             runtime=lambda_.Runtime.PYTHON_3_12,
             code=lambda_.Code.from_asset("../lambdas"),
-            handler="epss_fetcher.handler",
-            timeout=Duration.minutes(3),
-            memory_size=128,
+            handler="fetchers.epss_fetcher.handler",
+            timeout=Duration.minutes(10),
+            memory_size=512,
             environment=shared_env,
         )
 
@@ -184,10 +184,15 @@ class IngestionStack(Stack):
         #
         # CDK generates the exact IAM policy statements automatically.
         # You don't need to write JSON policies manually.
-        for fetcher in [self.nvd_fetcher, self.cisa_fetcher, self.epss_fetcher]:
+        for fetcher in [self.nvd_fetcher, self.cisa_fetcher]:
             self.queue.grant_send_messages(fetcher)         # SQS write
             storage.raw_bucket.grant_put(fetcher)           # S3 write
             storage.table.grant_write_data(fetcher)         # DynamoDB write
+
+        # EPSS fetcher needs read+write to check and update EPSS_META
+        self.queue.grant_send_messages(self.epss_fetcher)
+        storage.raw_bucket.grant_put(self.epss_fetcher)
+        storage.table.grant_read_write_data(self.epss_fetcher)  # ← read+write
 
         # ── EventBridge Scheduler ────────────────────────────────────────────
         # EventBridge is AWS's event bus and scheduler.
