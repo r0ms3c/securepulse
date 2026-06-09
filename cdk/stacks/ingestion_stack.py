@@ -154,7 +154,7 @@ class IngestionStack(Stack):
             function_name="securepulse-cisa-kev-fetcher",
             runtime=lambda_.Runtime.PYTHON_3_12,
             code=lambda_.Code.from_asset("../lambdas"),
-            handler="cisa_kev_fetcher.handler",
+            handler="fetchers.cisa_kev_fetcher.handler",
             timeout=Duration.minutes(3),
             memory_size=128,
             environment=shared_env,
